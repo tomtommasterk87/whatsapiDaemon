@@ -1,0 +1,19 @@
+{
+    "name": "mawalu/whatsapi-deamon",
+    "description": "A deamon for venomous0x/WhatsAPI",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mawalu",
+            "email": "web@mawalabs.de"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "mawalu": "src/"
+        }
+    },
+    "require": {
+        "whatsapi/whatsapi": "dev-master"
+    }
+}
