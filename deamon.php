@@ -6,7 +6,12 @@ require 'config/config.php';
 
 $server = new mawalu\whatsapiDeamon\server("tcp://0.0.0.0:4444");
 $events = new mawalu\whatsapiDeamon\events;
-$whatsapp = new mawalu\whatsapiDeamon\whatsapp($sender, $imei, $nickname, $password, $events);
+$whatsapp = new mawalu\whatsapiDeamon\whatsapp($sender,
+                                               $imei,
+                                               $nickname,
+                                               $password,
+                                               $events
+                                              );
 
 for(;;) {
     // Call socket() and pars all new messages recived from socket clients

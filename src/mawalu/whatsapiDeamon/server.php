@@ -14,7 +14,7 @@ class server
         $this->client_socks = array();
 
         if ($this->server === false) {
-            die("Could not bind to socket: $errorMessage");
+            die('Could not bind to socket: $errorMessage');
         }
     }
 
@@ -32,10 +32,14 @@ class server
                          
                 if ($new_client) {
                     //print remote client information, ip and port number
-                    echo 'Connection accepted from ' . stream_socket_get_name($new_client, true) . "\n";
+                    echo 'Connection accepted from ' . 
+                         stream_socket_get_name($new_client, true) .
+                         '\n';
                              
                     $this->client_socks[] = $new_client;
-                    echo "Now there are total ". count($this->client_socks) . " clients.\n";
+                    echo 'Now there are total ' . 
+                         count($this->client_socks) .
+                         ' clients.\n';
                 }
                          
                 //delete the server socket from the read sockets
@@ -48,8 +52,8 @@ class server
                 $data[] = fread($sock, 128);
 
                 $data = join($data);
-                $return[] = array("from" => stream_socket_get_name($sock, true),
-                                  "data" => $data
+                $return[] = array('from' => stream_socket_get_name($sock, true),
+                                  'data' => $data
                                  );
             }   
         }
