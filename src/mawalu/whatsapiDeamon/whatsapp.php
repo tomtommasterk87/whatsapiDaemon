@@ -2,6 +2,8 @@
 
 namespace mawalu\whatsapiDeamon;
 
+use \WhatsApi\WhatsProtocol;
+
 class whatsapp
 {
 
@@ -9,7 +11,7 @@ class whatsapp
 
     public function __construct($sender, $imei, $nickname, $password, $events)
     {
-        $this->wa = new \WhatsApi\WhatsProtocol($sender, $imei, $nickname, FALSE);
+        $this->wa = new WhatsProtocol($sender, $imei, $nickname, FALSE);
         $this->wa->eventManager()->addEventListener($events);
         $this->wa->connect();
         $this->wa->loginWithPassword($password);

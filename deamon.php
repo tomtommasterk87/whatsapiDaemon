@@ -14,13 +14,14 @@ $whatsapp = new mawalu\whatsapiDeamon\whatsapp($sender,
                                               );
 
 for(;;) {
-    // Call socket() and pars all new messages recived from socket clients
-    foreach ($server->socket() as $msg) {
+    // Call socket() and pars all new messages received from socket clients
+    foreach ($server->socket($events->getTodo()) as $msg) {
         $data = json_decode($msg['data']);
-        if ($data->action == 'addEvent') {
+        if ($data !== null && $data->action === 'addEvent') {
             $events->registerHandler($msg['from'], $data->event);
         }
     }
+    //$events->doneTodo();
 
     // Poll for new whatsapp messages / events
     $whatsapp->pollOnce();

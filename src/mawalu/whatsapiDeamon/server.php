@@ -5,7 +5,8 @@ namespace mawalu\whatsapiDeamon;
 class server
 {
     private $server;
-    private $client_socks;
+    private $clientSocks;
+    private $toSent;
 
     public function __construct($stream)
     {
@@ -14,45 +15,63 @@ class server
         $this->client_socks = array();
 
         if ($this->server === false) {
-            die('Could not bind to socket: $errorMessage');
+            die("Could not bind to socket: $errorMessage");
         }
     }
+    
+    public function sendChunk($data, $sock) {
+        $data = chunk_split($data, 128);
+        if(is_array($data)) {
+            foreach ($data as $send) {
+                fwrite($sock, $send);
+            }
+        } else {
+            fwrite($sock, $data);
+        }
 
-    public function socket()
+    }
+
+    public function socket($toSent)
     {
-        $read_socks = $this->client_socks;
-        $read_socks[] = $this->server;
+        $readSocks = $this->clientSocks;
+        $readSocks[] = $this->server;
+        $this->toSent = $toSent;
         $return = array();
                  
-        //start reading and use a large timeout
-        if(stream_select ( $read_socks, $write, $except, 1 )) {
+        //start reading
+        if(stream_select ( $readSocks, $write, $except, 1 )) {
             //new client
-            if(in_array($this->server, $read_socks)) {
-                $new_client = stream_socket_accept($this->server);
+            if(in_array($this->server, $readSocks)) {
+                $newClient = stream_socket_accept($this->server);
                          
-                if ($new_client) {
+                if ($newClient) {
                     //print remote client information, ip and port number
                     echo 'Connection accepted from ' . 
-                         stream_socket_get_name($new_client, true) .
+                         stream_socket_get_name($newClient, true) .
                          '\n';
                              
-                    $this->client_socks[] = $new_client;
+                    $this->clientSocks[] = $newClient;
                     echo 'Now there are total ' . 
-                         count($this->client_socks) .
+                         count($this->clientSocks) .
                          ' clients.\n';
                 }
                          
                 //delete the server socket from the read sockets
-                unset($read_socks[ array_search($this->server, $read_socks) ]);
+                unset($readSocks[ array_search($this->server, $readSocks) ]);
             }
                      
             //message from existing client
-            foreach($read_socks as $sock) {
-                print_r($sock);
+            foreach($readSocks as $sock) {
+                $name = stream_socket_get_name($sock, true);
+                if(isset($this->toSent[$name])) {
+                    foreach ($this->toSent[$name] as $event) {
+                        $this->sendChunk(json_encode($event), $sock);
+                    }
+                }
                 $data[] = fread($sock, 128);
 
-                $data = join($data);
-                $return[] = array('from' => stream_socket_get_name($sock, true),
+                $data = join("", $data);
+                $return[] = array('from' => $name,
                                   'data' => $data
                                  );
             }   
