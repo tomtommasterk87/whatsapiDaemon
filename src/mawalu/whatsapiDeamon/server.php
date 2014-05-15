@@ -37,7 +37,16 @@ class server
         $readSocks[] = $this->server;
         $this->toSent = $toSent;
         $return = array();
-                 
+
+        foreach($readSocks as $sock) {
+            $name = stream_socket_get_name($sock, true);
+            if(isset($this->toSent[$name])) {
+                foreach ($this->toSent[$name] as $event) {
+                    $this->sendChunk(json_encode($event), $sock);
+                }
+            }
+        }
+
         //start reading
         if(stream_select ( $readSocks, $write, $except, 1 )) {
             //new client
@@ -63,11 +72,7 @@ class server
             //message from existing client
             foreach($readSocks as $sock) {
                 $name = stream_socket_get_name($sock, true);
-                if(isset($this->toSent[$name])) {
-                    foreach ($this->toSent[$name] as $event) {
-                        $this->sendChunk(json_encode($event), $sock);
-                    }
-                }
+
                 $data[] = fread($sock, 128);
 
                 $data = join("", $data);
