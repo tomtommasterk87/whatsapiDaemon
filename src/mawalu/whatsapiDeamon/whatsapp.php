@@ -17,6 +17,11 @@ class whatsapp
         $this->wa->loginWithPassword($password);
     }
 
+    public function callFunction($func, $arg = [])
+    {
+        return call_user_func_array(array($this->wa, $func), $arg);
+    }
+
     public function poll()
     {
         while(true) {

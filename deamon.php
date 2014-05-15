@@ -19,9 +19,11 @@ for(;;) {
         $data = json_decode($msg['data']);
         if ($data !== null && $data->action === 'addEvent') {
             $events->registerHandler($msg['from'], $data->event);
+        }elseif($data !== null) {
+            $whatsapp->callFunction($data->action, $data->args);
         }
     }
-    //$events->doneTodo();
+    $events->doneTodo();
 
     // Poll for new whatsapp messages / events
     $whatsapp->pollOnce();
