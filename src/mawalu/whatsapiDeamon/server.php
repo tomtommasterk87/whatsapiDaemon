@@ -2,12 +2,34 @@
 
 namespace mawalu\whatsapiDeamon;
 
+/**
+ * Class server
+ * This class handel's all socket clients
+ *
+ * @package mawalu\whatsapiDeamon
+ */
 class server
 {
+    /**
+     * Socket server
+     * @var resource
+     */
     private $server;
+    /**
+     * All the clients
+     * @var array
+     */
     private $clientSocks;
+    /**
+     * Everything that needs to be send
+     * @var array
+     */
     private $toSent;
 
+    /**
+     * Create the listening socket
+     * @param $stream
+     */
     public function __construct($stream)
     {
         $this->server = stream_socket_server($stream, $errno, $errorMessage);
@@ -18,7 +40,12 @@ class server
             die("Could not bind to socket: $errorMessage");
         }
     }
-    
+
+    /**
+     * Send data as chunks
+     * @param $data
+     * @param $sock
+     */
     public function sendChunk($data, $sock) {
         $data = chunk_split($data, 128);
         if(is_array($data)) {
@@ -31,6 +58,11 @@ class server
 
     }
 
+    /**
+     * Poll for messages, client and send new events
+     * @param $toSent
+     * @return array
+     */
     public function socket($toSent)
     {
         $readSocks = $this->clientSocks;
