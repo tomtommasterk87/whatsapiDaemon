@@ -4,7 +4,7 @@
 require 'vendor/autoload.php';
 require 'config/config.php';
 
-$server = new mawalu\whatsapiDeamon\server("tcp://0.0.0.0:4444");
+$server = new mawalu\whatsapiDeamon\server($stream);
 $events = new mawalu\whatsapiDeamon\events;
 $whatsapp = new mawalu\whatsapiDeamon\whatsapp($sender,
                                                $imei,
