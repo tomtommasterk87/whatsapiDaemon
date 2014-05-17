@@ -2,11 +2,34 @@
 
 namespace mawalu\whatsapiDeamon;
 
+/**
+ * Class server
+ * This class handel's all socket clients
+ *
+ * @package mawalu\whatsapiDeamon
+ */
 class server
 {
+    /**
+     * Socket server
+     * @var resource
+     */
     private $server;
-    private $client_socks;
+    /**
+     * All the clients
+     * @var array
+     */
+    private $clientSocks;
+    /**
+     * Everything that needs to be send
+     * @var array
+     */
+    private $toSent;
 
+    /**
+     * Create the listening socket
+     * @param $stream
+     */
     public function __construct($stream)
     {
         $this->server = stream_socket_server($stream, $errno, $errorMessage);
@@ -18,38 +41,75 @@ class server
         }
     }
 
-    public function socket()
+    /**
+     * Send data as chunks
+     * @param $data
+     * @param $sock
+     */
+    public function sendChunk($data, $sock) {
+        $data = chunk_split($data, 128);
+        if(is_array($data)) {
+            foreach ($data as $send) {
+                fwrite($sock, $send);
+            }
+        } else {
+            fwrite($sock, $data);
+        }
+
+    }
+
+    /**
+     * Poll for messages, client and send new events
+     * @param $toSent
+     * @return array
+     */
+    public function socket($toSent)
     {
-        $read_socks = $this->client_socks;
-        $read_socks[] = $this->server;
+        $readSocks = $this->clientSocks;
+        $readSocks[] = $this->server;
+        $this->toSent = $toSent;
         $return = array();
-                 
-        //start reading and use a large timeout
-        if(stream_select ( $read_socks, $write, $except, 1 )) {
+
+        foreach($readSocks as $sock) {
+            $name = stream_socket_get_name($sock, true);
+            if(isset($this->toSent[$name])) {
+                foreach ($this->toSent[$name] as $event) {
+                    $this->sendChunk(json_encode($event), $sock);
+                }
+            }
+        }
+
+        //start reading
+        if(stream_select ( $readSocks, $write, $except, 1 )) {
             //new client
-            if(in_array($this->server, $read_socks)) {
-                $new_client = stream_socket_accept($this->server);
+            if(in_array($this->server, $readSocks)) {
+                $newClient = stream_socket_accept($this->server);
                          
-                if ($new_client) {
+                if ($newClient) {
                     //print remote client information, ip and port number
-                    echo 'Connection accepted from ' . stream_socket_get_name($new_client, true) . "\n";
+                    echo 'Connection accepted from ' . 
+                         stream_socket_get_name($newClient, true) .
+                         '\n';
                              
-                    $this->client_socks[] = $new_client;
-                    echo "Now there are total ". count($this->client_socks) . " clients.\n";
+                    $this->clientSocks[] = $newClient;
+                    echo 'Now there are total ' . 
+                         count($this->clientSocks) .
+                         ' clients.\n';
                 }
                          
                 //delete the server socket from the read sockets
-                unset($read_socks[ array_search($this->server, $read_socks) ]);
+                unset($readSocks[ array_search($this->server, $readSocks) ]);
             }
                      
             //message from existing client
-            foreach($read_socks as $sock) {
-                print_r($sock);
+            foreach($readSocks as $sock) {
+                $name = stream_socket_get_name($sock, true);
+
                 $data[] = fread($sock, 128);
 
-                $data = join($data);
-                $return[] = array("from" => stream_socket_get_name($sock, true),
-                                  "data" => $data
+                $data = join("", $data);
+                $return[] = array('from' => $name,
+                                  'data' => $data
                                  );
             }   
         }
