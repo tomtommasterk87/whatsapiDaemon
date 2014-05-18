@@ -18,7 +18,7 @@ for(;;) {
     foreach ($server->socket($events->getTodo()) as $msg) {
         $data = json_decode($msg['data']);
         if ($data !== null && $data->action === 'addEvent') {
-            $events->registerHandler($msg['from'], $data->event);
+            $events->registerHandler($msg['from'], $data->args);
         }elseif($data !== null) {
             $whatsapp->callFunction($data->action, $data->args);
         }

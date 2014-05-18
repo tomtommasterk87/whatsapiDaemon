@@ -106,7 +106,6 @@ class server
                 $name = stream_socket_get_name($sock, true);
 
                 $data[] = fread($sock, 128);
-
                 $data = join("", $data);
                 $return[] = array('from' => $name,
                                   'data' => $data

@@ -61,9 +61,9 @@ class events extends WhatsAppEventListenerProxy
     public function registerHandler($from, $name)
     {
         if(isset($this->handler[$from])) {
-            $this->handler[$from][] = $name;
+            $this->handler[$from][] = $name[0];
         } else {
-            $this->handler[$from] = array($name);
+            $this->handler[$from] = array($name[0]);
         }
     }
 
