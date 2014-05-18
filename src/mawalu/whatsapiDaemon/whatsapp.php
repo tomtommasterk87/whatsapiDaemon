@@ -19,15 +19,18 @@ class whatsapp
 
     /**
      * Connect to whatsapp and initialize the event handler
-     * @param $sender
-     * @param $imei
-     * @param $nickname
+     *
+     * @param \WhatsApi\WhatsProtocol $whatsapp
+     * @param \mawalu\whatsapiDaemon\events $events
      * @param $password
-     * @param $events
+     *
+     * @internal param $sender
+     * @internal param $imei
+     * @internal param $nickname
      */
-    public function __construct($sender, $imei, $nickname, $password, $events)
+    public function __construct(WhatsProtocol $whatsapp,  events $events, $password)
     {
-        $this->wa = new WhatsProtocol($sender, $imei, $nickname, FALSE);
+        $this->wa = $whatsapp;
         $this->wa->eventManager()->addEventListener($events);
         $this->wa->connect();
         $this->wa->loginWithPassword($password);
