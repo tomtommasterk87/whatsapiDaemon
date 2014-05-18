@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "26ab42be5ecc413a3f8d726de6a08370",
+    "hash": "0df43b89aa05d2b980e83cc4c70bd94a",
     "packages": [
         {
             "name": "whatsapi/whatsapi",

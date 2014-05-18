@@ -1,12 +1,12 @@
 <?php
 
-namespace mawalu\whatsapiDeamon;
+namespace mawalu\whatsapiDaemon;
 
 use \WhatsApi\Events\WhatsAppEventListenerProxy;
 
 /**
  * Handles all events from whatsapi and the socket api
- * @package mawalu\whatsapiDeamon
+ * @package mawalu\whatsapiDaemon
  */
 class events extends WhatsAppEventListenerProxy
 {

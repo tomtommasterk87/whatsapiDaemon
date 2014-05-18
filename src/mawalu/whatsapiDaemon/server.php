@@ -1,12 +1,12 @@
 <?php
 
-namespace mawalu\whatsapiDeamon;
+namespace mawalu\whatsapiDaemon;
 
 /**
  * Class server
  * This class handel's all socket clients
  *
- * @package mawalu\whatsapiDeamon
+ * @package mawalu\whatsapiDaemon
  */
 class server
 {
