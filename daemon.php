@@ -4,14 +4,14 @@
 require 'vendor/autoload.php';
 require 'config/config.php';
 
-$server = new mawalu\whatsapiDaemon\server($stream);
-$events = new mawalu\whatsapiDaemon\events;
-$whatsapp = new mawalu\whatsapiDaemon\whatsapp($sender,
-                                               $imei,
-                                               $nickname,
-                                               $password,
-                                               $events
-                                              );
+use mawalu\whatsapiDaemon\whatsapp;
+use mawalu\whatsapiDaemon\server;
+use mawalu\whatsapiDaemon\events;
+use WhatsApi\WhatsProtocol;
+
+$server = new server($stream);
+$events = new events;
+$whatsapp = new whatsapp(new WhatsProtocol($sender, $imei, $nickname, FALSE), $events, $password);
 
 for(;;) {
     // Call socket() and pars all new messages received from socket clients
