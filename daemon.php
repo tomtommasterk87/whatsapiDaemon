@@ -4,9 +4,9 @@
 require 'vendor/autoload.php';
 require 'config/config.php';
 
-$server = new mawalu\whatsapiDeamon\server($stream);
-$events = new mawalu\whatsapiDeamon\events;
-$whatsapp = new mawalu\whatsapiDeamon\whatsapp($sender,
+$server = new mawalu\whatsapiDaemon\server($stream);
+$events = new mawalu\whatsapiDaemon\events;
+$whatsapp = new mawalu\whatsapiDaemon\whatsapp($sender,
                                                $imei,
                                                $nickname,
                                                $password,
@@ -18,7 +18,7 @@ for(;;) {
     foreach ($server->socket($events->getTodo()) as $msg) {
         $data = json_decode($msg['data']);
         if ($data !== null && $data->action === 'addEvent') {
-            $events->registerHandler($msg['from'], $data->event);
+            $events->registerHandler($msg['from'], $data->args);
         }elseif($data !== null) {
             $whatsapp->callFunction($data->action, $data->args);
         }

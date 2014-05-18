@@ -1,12 +1,12 @@
 <?php
 
-namespace mawalu\whatsapiDeamon;
+namespace mawalu\whatsapiDaemon;
 
 /**
  * Class server
  * This class handel's all socket clients
  *
- * @package mawalu\whatsapiDeamon
+ * @package mawalu\whatsapiDaemon
  */
 class server
 {
@@ -106,7 +106,6 @@ class server
                 $name = stream_socket_get_name($sock, true);
 
                 $data[] = fread($sock, 128);
-
                 $data = join("", $data);
                 $return[] = array('from' => $name,
                                   'data' => $data

@@ -1,12 +1,12 @@
 <?php
 
-namespace mawalu\whatsapiDeamon;
+namespace mawalu\whatsapiDaemon;
 
 use \WhatsApi\WhatsProtocol;
 
 /**
  * A little wrapper for the whatsapi
- * @package mawalu\whatsapiDeamon
+ * @package mawalu\whatsapiDaemon
  */
 class whatsapp
 {
