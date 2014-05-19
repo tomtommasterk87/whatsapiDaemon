@@ -27,7 +27,7 @@ class events extends WhatsAppEventListenerProxy
      * @param array $arguments
      * @return null
      */
-    protected function handleEvent($eventName, array $arguments)
+    public function handleEvent($eventName, array $arguments)
     {
         foreach ($this->searchForHandler($eventName) as $val) {
             if(isset($this->todo[$val])) {
@@ -43,7 +43,7 @@ class events extends WhatsAppEventListenerProxy
      * @param $event
      * @return array
      */
-    private function searchForHandler($event) {
+    public function searchForHandler($event) {
         $return = array();
         foreach ($this->handler as $key => $val) {
             if (in_array($event, $val)) {
