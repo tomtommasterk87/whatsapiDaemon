@@ -27,7 +27,7 @@ class events extends WhatsAppEventListenerProxy
      * @param array $arguments
      * @return null
      */
-    protected function handleEvent($eventName, array $arguments)
+    public function handleEvent($eventName, array $arguments)
     {
         foreach ($this->searchForHandler($eventName) as $val) {
             if(isset($this->todo[$val])) {
@@ -43,7 +43,7 @@ class events extends WhatsAppEventListenerProxy
      * @param $event
      * @return array
      */
-    private function searchForHandler($event) {
+    public function searchForHandler($event) {
         $return = array();
         foreach ($this->handler as $key => $val) {
             if (in_array($event, $val)) {
@@ -55,15 +55,18 @@ class events extends WhatsAppEventListenerProxy
 
     /**
      * Register an handler for an event
+     *
      * @param $from
-     * @param $name
+     * @param $events
      */
-    public function registerHandler($from, $name)
+    public function registerHandler($from, $events)
     {
-        if(isset($this->handler[$from])) {
-            $this->handler[$from][] = $name[0];
-        } else {
-            $this->handler[$from] = array($name[0]);
+        if(!isset($this->handler[$from])) {
+            $this->handler[$from] = array();
+        }
+
+        foreach($events as $event) {
+            $this->handler[$from][] = $event;
         }
     }
 
@@ -75,6 +78,21 @@ class events extends WhatsAppEventListenerProxy
     public function removeHandler($from, $name)
     {
         unset($this->handler[$from][$name]);
+    }
+
+    /**
+     * Remove all event handlers form one, or all clients
+     * @param null $from
+     */
+    public function removeAllHandlers($from = null)
+    {
+        if($from == null) {
+            $this->handler = array();
+        } else {
+            if (isset($this->handler[$from])) {
+                unset($this->handler[$from]);
+            }
+        }
     }
 
     /**

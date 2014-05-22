@@ -62,6 +62,8 @@ class server
      * Poll for messages, client and send new events
      * @param $toSent
      * @return array
+     *
+     * @todo Check for closed connection
      */
     public function socket($toSent)
     {
