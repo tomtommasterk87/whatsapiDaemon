@@ -44,7 +44,9 @@ class whatsapp
      */
     public function callFunction($func, $arg = [])
     {
-        return call_user_func_array(array($this->wa, $func), $arg);
+        if(method_exists($this->wa, $func)) {
+            return call_user_func_array(array($this->wa, $func), $arg);
+        }
     }
 
     /**

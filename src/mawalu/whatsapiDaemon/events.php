@@ -72,12 +72,15 @@ class events extends WhatsAppEventListenerProxy
 
     /**
      * Remove an event handler
+     *
      * @param $from
-     * @param $name
+     * @param $events
      */
-    public function removeHandler($from, $name)
+    public function removeHandler($from, $events)
     {
-        unset($this->handler[$from][$name]);
+        foreach($events as $event) {
+            unset($this->handler[$from][array_search($event, $this->handler[$from])]);
+        }
     }
 
     /**
