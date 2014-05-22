@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martin
- * Date: 19.05.14
- * Time: 18:49
- */
 
 namespace test\mawalu\whatsapiDaemon;
 
