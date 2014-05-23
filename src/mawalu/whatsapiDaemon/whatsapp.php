@@ -2,6 +2,7 @@
 
 namespace mawalu\whatsapiDaemon;
 
+use Psr\Log\LoggerInterface;
 use \WhatsApi\WhatsProtocol;
 
 /**
@@ -18,26 +19,32 @@ class whatsapp
     private $wa;
 
     /**
+     * Any Psr conform logger class
+     * @var LoggerInterface
+     */
+    private $log;
+
+    /**
      * Connect to whatsapp and initialize the event handler
      *
      * @param \WhatsApi\WhatsProtocol $whatsapp
      * @param \mawalu\whatsapiDaemon\events $events
-     * @param $password
-     *
-     * @internal param $sender
-     * @internal param $imei
-     * @internal param $nickname
+     * @param string $password
+     * @param LoggerInterface $log
      */
-    public function __construct(WhatsProtocol $whatsapp,  events $events, $password)
+    public function __construct(WhatsProtocol $whatsapp,  events $events, $password, LoggerInterface $log)
     {
+        $this->log = $log;
         $this->wa = $whatsapp;
         $this->wa->eventManager()->addEventListener($events);
         $this->wa->connect();
         $this->wa->loginWithPassword($password);
+        $this->log->info("Connected to whatsapp");
     }
 
     /**
      * Call a whatsapi function
+     *
      * @param $func
      * @param array $arg
      * @return mixed
@@ -45,6 +52,7 @@ class whatsapp
     public function callFunction($func, $arg = [])
     {
         if(method_exists($this->wa, $func)) {
+            $this->log->info("Calling whatsapi function", array($func, $arg));
             return call_user_func_array(array($this->wa, $func), $arg);
         }
     }

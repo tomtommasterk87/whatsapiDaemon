@@ -2,6 +2,7 @@
 
 namespace mawalu\whatsapiDaemon;
 
+use Psr\Log\LoggerInterface;
 use \WhatsApi\Events\WhatsAppEventListenerProxy;
 
 /**
@@ -20,6 +21,16 @@ class events extends WhatsAppEventListenerProxy
      * @var array
      */
     private $todo = array();
+    /**
+     * Any Psr conform logger class
+     * @var LoggerInterface
+     */
+    private $log;
+
+    public function __construct(LoggerInterface $log)
+    {
+        $this->log = $log;
+    }
 
     /**
      * This gets called by the whatsapi whe something happens
@@ -29,6 +40,7 @@ class events extends WhatsAppEventListenerProxy
      */
     public function handleEvent($eventName, array $arguments)
     {
+        $this->log->info("Event got triggered", array($eventName, $arguments));
         foreach ($this->searchForHandler($eventName) as $val) {
             if(isset($this->todo[$val])) {
                 $this->todo[$val][] = array($eventName => $arguments);
@@ -66,6 +78,7 @@ class events extends WhatsAppEventListenerProxy
         }
 
         foreach($events as $event) {
+            $this->log->info("Registered event handler", array($from, $event));
             $this->handler[$from][] = $event;
         }
     }
@@ -79,6 +92,7 @@ class events extends WhatsAppEventListenerProxy
     public function removeHandler($from, $events)
     {
         foreach($events as $event) {
+            $this->log->info("Removed event handler", array($from, $event));
             unset($this->handler[$from][array_search($event, $this->handler[$from])]);
         }
     }
@@ -90,9 +104,11 @@ class events extends WhatsAppEventListenerProxy
     public function removeAllHandlers($from = null)
     {
         if($from == null) {
+            $this->log->info("Removed all event handlers");
             $this->handler = array();
         } else {
             if (isset($this->handler[$from])) {
+                $this->log->info("Removed all event handlers from", array($from));
                 unset($this->handler[$from]);
             }
         }
