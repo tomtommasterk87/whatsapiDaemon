@@ -2,6 +2,8 @@
 
 namespace mawalu\whatsapiDaemon;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Class server
  * This class handel's all socket clients
@@ -25,19 +27,27 @@ class server
      * @var array
      */
     private $toSent;
+    /**
+     * Any Psr conform logger class
+     * @var LoggerInterface
+     */
+    private $log;
 
     /**
      * Create the listening socket
      * @param $stream
+     * @param LoggerInterface $log
+     * @throws \Exception
      */
-    public function __construct($stream)
+    public function __construct($stream, LoggerInterface $log)
     {
+        $this->log = $log;
         $this->server = stream_socket_server($stream, $errno, $errorMessage);
         stream_set_blocking( $this->server, 0 );
         $this->client_socks = array();
 
         if ($this->server === false) {
-            die("Could not bind to socket: $errorMessage");
+            throw new \Exception("Could not bind socket to port");
         }
     }
 
@@ -47,6 +57,7 @@ class server
      * @param $sock
      */
     public function sendChunk($data, $sock) {
+        $this->log->info("Sending data to socket client", array($sock, $data));
         $data = chunk_split($data, 128);
         if(is_array($data)) {
             foreach ($data as $send) {
@@ -62,8 +73,6 @@ class server
      * Poll for messages, client and send new events
      * @param $toSent
      * @return array
-     *
-     * @todo Check for closed connection
      */
     public function socket($toSent)
     {
@@ -89,14 +98,9 @@ class server
                          
                 if ($newClient) {
                     //print remote client information, ip and port number
-                    echo 'Connection accepted from ' . 
-                         stream_socket_get_name($newClient, true) .
-                         '\n';
-                             
+                    $this->log->info("Connection accepted", array(stream_socket_get_name($newClient, true)));
+
                     $this->clientSocks[] = $newClient;
-                    echo 'Now there are total ' . 
-                         count($this->clientSocks) .
-                         ' clients.\n';
                 }
                          
                 //delete the server socket from the read sockets
@@ -109,10 +113,15 @@ class server
 
                 $data[] = fread($sock, 128);
                 $data = join("", $data);
-                $return[] = array('from' => $name,
-                                  'data' => $data
-                                 );
-            }   
+
+                if($data == "") {
+                    unset($this->clientSocks[ array_search($sock, $this->clientSocks) ]);
+                    $this->log->info("Client disconnected", array($name));
+                } else {
+                    $return[] = array('from' => $name, 'data' => $data);
+                    $this->log->info("Received data from client", array($name, $data));
+                }
+            }
         }
 
         return $return;

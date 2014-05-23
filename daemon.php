@@ -4,23 +4,41 @@
 require 'vendor/autoload.php';
 require 'config/config.php';
 
-use mawalu\whatsapiDaemon\whatsapp;
+use Monolog\Logger;
+use WhatsApi\WhatsProtocol;
 use mawalu\whatsapiDaemon\server;
 use mawalu\whatsapiDaemon\events;
-use WhatsApi\WhatsProtocol;
+use Monolog\Handler\RotatingFileHandler;
+use mawalu\whatsapiDaemon\whatsapp;
 
-$server = new server($stream);
-$events = new events;
-$whatsapp = new whatsapp(new WhatsProtocol($sender, $imei, $nickname, FALSE), $events, $password);
+$log = new Logger($nickname);
+$log->pushHandler(new RotatingFileHandler(__DIR__ . '/log/debug', 0, Logger::DEBUG));
+$log->info("Started");
+
+$server = new server($stream, $log);
+$events = new events($log);
+$whatsapp = new whatsapp(new WhatsProtocol($sender, $imei, $nickname, FALSE), $events, $password, $log);
 
 for(;;) {
     // Call socket() and pars all new messages received from socket clients
     foreach ($server->socket($events->getTodo()) as $msg) {
         $data = json_decode($msg['data']);
-        if ($data !== null && $data->action === 'addEvent') {
-            $events->registerHandler($msg['from'], $data->args);
-        }elseif($data !== null) {
-            $whatsapp->callFunction($data->action, $data->args);
+        if($data !== null) {
+            $log->info("Received socket command", array($data->action, $data->args));
+
+            switch($data->action) {
+                case 'registerHandler':
+                    $events->registerHandler($msg['from'], $data->args);
+                    break;
+                case 'removeHandler':
+                    $events->removeHandler($msg['from'], $data->args);
+                    break;
+                case 'removeAllHandler':
+                    $events->removeAllHandlers($msg['from']);
+                    break;
+                default:
+                    $whatsapp->callFunction($data->action, $data->args);
+            }
         }
     }
     $events->doneTodo();

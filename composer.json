@@ -1,6 +1,6 @@
 {
     "name": "mawalu/whatsapiDaemon",
-    "description": "A deamon for venomous0x/WhatsAPI",
+    "description": "A daemon for venomous0x/WhatsAPI",
     "license": "MIT",
     "authors": [
         {
@@ -14,7 +14,8 @@
         }
     },
     "require": {
-        "whatsapi/whatsapi": "dev-master"
+        "whatsapi/whatsapi": "dev-master",
+        "monolog/monolog": "1.9.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1"
